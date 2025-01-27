@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: "Welcome to the home of your new documentation"
+description: "Multi-site Payroll Service API Documentation"
 ---
 
 <img
@@ -14,58 +14,109 @@ description: "Welcome to the home of your new documentation"
   alt="Hero Dark"
 />
 
-## Setting up
+## Overview
 
-The first step to world-class documentation is setting up your editing environments.
+Welcome to The Avenues LLC's Payroll Service API documentation. This API serves as the unified backend for three major payroll service websites:
+
+- [PaystubsNow.com](https://paystubsnow.com)
+- [CheckstubMaker.com](https://checkstubmaker.com)
+- [TheBestPaystubs.com](https://thebestpaystubs.com)
+
+Our API is built with Laravel and implements modern architecture patterns to handle multi-tenant requests efficiently. Each request is automatically scoped to its originating site, ensuring data isolation and security.
+
+## Key Features
 
 <CardGroup cols={2}>
   <Card
-    title="Edit Your Docs"
-    icon="pen-to-square"
-    href="https://mintlify.com/docs/quickstart"
+    title="Multi-Site Support"
+    icon="building"
   >
-    Get your docs set up locally for easy development
+    Built-in support for multiple domains with automatic request routing and filtering
   </Card>
   <Card
-    title="Preview Changes"
-    icon="image"
-    href="https://mintlify.com/docs/development"
+    title="Document Generation"
+    icon="file-invoice-dollar"
   >
-    Preview your changes before you push to make sure they're perfect
+    Automated generation of various document types including paystubs, W2s, and 1099s
+  </Card>
+  <Card
+    title="Flexible Payments"
+    icon="credit-card"
+  >
+    Integration with multiple payment processors including Stripe, NMI, and Coinbase
+  </Card>
+  <Card
+    title="Role-Based Access"
+    icon="shield-halved"
+  >
+    Comprehensive role and permission system for secure access control
   </Card>
 </CardGroup>
 
-## Make it yours
+## Getting Started
 
-Update your docs to your brand and add valuable content for the best user conversion.
+Our API is designed to be simple to use with automatic site detection based on the requesting domain. Here's how to get started:
+
+<Steps>
+  <Step title="Choose Your Domain">
+    Ensure your requests come from your authorized domain (paystubsnow.com, checkstubmaker.com, or thebestpaystubs.com)
+  </Step>
+  <Step title="Development Setup">
+    Use our staging environments for development and testing before moving to production
+  </Step>
+  <Step title="Make Your First Request">
+    No API key needed - just make your HTTP request from your authorized domain and we'll handle the rest
+  </Step>
+</Steps>
+
+## API Architecture
+
+Our API follows REST principles and implements JSON:API specification for consistent request and response handling. Key architectural features include:
+
+- **Multi-tenancy**: Automatic request scoping based on the originating domain
+- **Authentication**: Bearer token authentication using Laravel Sanctum
+- **Rate Limiting**: Built-in rate limiting to ensure fair usage
+- **Query Builder**: Powered by Spatie's Query Builder package for flexible data querying
+
+## API Versioning
+
+All API requests should include the version prefix in the URL. The current version is `v1`:
+
+```bash
+https://psn-api.avenues.dev/v1/{endpoint}
+https://csm-api.avenues.dev/v1/{endpoint}
+https://tbp-api.avenues.dev/v1/{endpoint}
+```
+
+## Next Steps
 
 <CardGroup cols={2}>
   <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
+    title="Authentication"
+    icon="key"
+    href="/authentication"
   >
-    Customize your docs to your company's colors and brands
+    Learn how to authenticate your API requests
   </Card>
   <Card
-    title="Reference APIs"
+    title="API Reference"
     icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
+    href="/api-reference"
   >
-    Automatically generate endpoints from an OpenAPI spec
+    Explore our comprehensive API endpoints
   </Card>
   <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/content/components/accordions"
+    title="Webhooks"
+    icon="webhook"
+    href="/webhooks"
   >
-    Build interactive features and designs to guide your users
+    Set up webhooks for real-time updates
   </Card>
   <Card
-    title="Get Inspiration"
-    icon="stars"
-    href="https://mintlify.com/customers"
+    title="Error Handling"
+    icon="triangle-exclamation"
+    href="/errors"
   >
-    Check out our showcase of our favorite documentation
+    Learn about error codes and troubleshooting
   </Card>
 </CardGroup>
