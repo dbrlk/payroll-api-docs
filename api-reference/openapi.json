@@ -28,7 +28,7 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Use your Sanctum API token"
+        "description": "Use your API token"
       }
     },
     "schemas": {
@@ -624,7 +624,7 @@
                             },
                             "token": {
                               "type": "string",
-                              "description": "Sanctum access token"
+                              "description": "API token"
                             }
                           }
                         }
@@ -719,7 +719,7 @@
                             },
                             "token": {
                               "type": "string",
-                              "description": "Sanctum access token"
+                              "description": "API token"
                             }
                           }
                         },
@@ -854,7 +854,7 @@
       "post": {
         "tags": ["Authentication"],
         "summary": "Refresh access token",
-        "description": "Generate a new Sanctum access token",
+        "description": "Generate a new API token",
         "operationId": "refreshToken",
         "security": [
           {
@@ -879,7 +879,7 @@
                           "properties": {
                             "token": {
                               "type": "string",
-                              "description": "New Sanctum access token"
+                              "description": "New API token"
                             }
                           }
                         }
