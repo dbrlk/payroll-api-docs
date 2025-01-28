@@ -18,12 +18,12 @@
   "topbarLinks": [
     {
       "name": "Support",
-      "url": "mailto:software@theavenuesllc.com"
+      "url": "mailto:deniz@theavenuesllc.com"
     }
   ],
   "topbarCtaButton": {
     "name": "Admin Portal",
-    "url": "https://management.avenues.dev"
+    "url": "https://management.paystub.dev"
   },
   "tabs": [
     {
