@@ -55,6 +55,8 @@
       "pages": [
         "introduction",
         "authentication",
+        "companies",
+        "employees",
         "errors"
       ]
     },
@@ -71,9 +73,8 @@
       "group": "API Reference",
       "pages": [
         "api-reference/authentication",
-        "api-reference/users",
-        "api-reference/sites",
-        "api-reference/roles",
+        "api-reference/companies",
+        "api-reference/employees",
         "api-reference/documents"
       ]
     },

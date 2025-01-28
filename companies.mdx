@@ -1,0 +1,166 @@
+---
+title: 'Companies'
+description: 'Manage company information in the Payroll Service API'
+---
+
+Companies represent business entities in the system. Each company can have multiple employees and documents associated with it. All company operations require authentication.
+
+## Data Structure
+
+```json
+{
+  "id": 1,
+  "site_id": 1,
+  "user_id": 1,
+  "name": "Acme Inc",
+  "email": "contact@acme.com",
+  "phone": "+1234567890",
+  "ein": "12-3456789",
+  "masked_ein": "XX-XXX6789",
+  "address": {
+    "address1": "123 Main St",
+    "address2": "Suite 100",
+    "city": "New York",
+    "state": "NY",
+    "zip": "10001",
+    "country": "US"
+  },
+  "employees_count": 5,
+  "documents_count": 10,
+  "created_at": "2024-01-28T12:00:00Z",
+  "updated_at": "2024-01-28T12:00:00Z"
+}
+```
+
+## List Companies
+
+Retrieve a paginated list of companies.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/companies \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": [
+  {
+    "id": 1,
+    "name": "Acme Inc",
+    // ... other company fields
+  }
+    ],
+    "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 3,
+    "per_page": 15,
+    "to": 15,
+    "total": 45
+  }
+  }
+  ```
+</CodeGroup>
+
+### Available Filters
+
+- `filter[name]` - Filter by company name
+- `filter[email]` - Filter by company email
+- `sort` - Sort by field (e.g., `name`, `-created_at`)
+- `include` - Include related resources (e.g., `employees`, `documents`)
+- `per_page` - Number of items per page (default: 15)
+
+## Create Company
+
+Create a new company record.
+
+<CodeGroup>
+  ```bash Request
+  curl -X POST https://api.paystub.dev/companies \
+  -H "Authorization: Bearer your_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "name": "New Company Inc",
+  "email": "contact@newcomp.com",
+  "address1": "456 Business Ave",
+  "city": "Chicago",
+  "state": "IL",
+  "zip": "60601",
+  "country": "US"
+}'
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "id": 2,
+    "name": "New Company Inc",
+    // ... other company fields
+  },
+    "message": "Company created successfully"
+  }
+  ```
+</CodeGroup>
+
+## Update Company
+
+Update an existing company's information.
+
+<CodeGroup>
+  ```bash Request
+  curl -X PUT https://api.paystub.dev/companies/1 \
+  -H "Authorization: Bearer your_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "name": "Updated Company Name",
+  "email": "new@email.com"
+}'
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "id": 1,
+    "name": "Updated Company Name",
+    // ... other company fields
+  },
+    "message": "Company updated successfully"
+  }
+  ```
+</CodeGroup>
+
+## Delete Company
+
+Delete a company and all associated records.
+
+<CodeGroup>
+  ```bash Request
+  curl -X DELETE https://api.paystub.dev/companies/1 \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "message": "Company deleted successfully"
+  }
+  ```
+</CodeGroup>
+
+## Error Handling
+
+- 401 Unauthenticated - Invalid or missing token
+- 403 Unauthorized - Insufficient permissions
+- 404 Not Found - Company does not exist
+- 422 Validation Error - Invalid input data
+
+## Best Practices
+
+1. Always validate EIN format (XX-XXXXXXX)
+2. Use proper country codes (ISO 2-letter)
+3. Include complete address information
+4. Handle sensitive data (EIN) securely

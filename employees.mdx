@@ -1,0 +1,185 @@
+---
+title: 'Employees'
+description: 'Manage employee records in the Payroll Service API'
+---
+
+Employees are individuals associated with companies in the system. Each employee can have multiple documents (paystubs, W2s, etc.) linked to their profile. All employee operations require authentication.
+
+## Data Structure
+
+```json
+{
+  "id": 1,
+  "site_id": 1,
+  "user_id": 1,
+  "company_id": 1,
+  "first_name": "John",
+  "last_name": "Doe",
+  "full_name": "John Doe",
+  "email": "john@example.com",
+  "phone": "+1234567890",
+  "ssn": "123-45-6789",
+  "masked_ssn": "XXX-XX-6789",
+  "address": {
+    "address1": "123 Main St",
+    "address2": "Apt 4B",
+    "city": "New York",
+    "state": "NY",
+    "zip": "10001",
+    "country": "US"
+  },
+  "additional_info": {},
+  "earnings": {},
+  "deductions": {},
+  "documents_count": 5,
+  "created_at": "2024-01-28T12:00:00Z",
+  "updated_at": "2024-01-28T12:00:00Z"
+}
+```
+
+## List Employees
+
+Retrieve a paginated list of employees.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/employees \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": [
+  {
+    "id": 1,
+    "first_name": "John",
+    "last_name": "Doe",
+    // ... other employee fields
+  }
+    ],
+    "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 3,
+    "per_page": 15,
+    "to": 15,
+    "total": 45
+  }
+  }
+  ```
+</CodeGroup>
+
+### Available Filters
+
+- `filter[company_id]` - Filter by company ID
+- `filter[first_name]` - Filter by first name
+- `filter[last_name]` - Filter by last name
+- `filter[email]` - Filter by email
+- `sort` - Sort by field (e.g., `first_name`, `-created_at`)
+- `include` - Include related resources (e.g., `company`, `documents`)
+- `per_page` - Number of items per page (default: 15)
+
+## Create Employee
+
+Create a new employee record.
+
+<CodeGroup>
+  ```bash Request
+  curl -X POST https://api.paystub.dev/employees \
+  -H "Authorization: Bearer your_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "company_id": 1,
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "email": "jane@example.com",
+  "ssn": "987-65-4321",
+  "address1": "789 Work St",
+  "city": "Los Angeles",
+  "state": "CA",
+  "zip": "90001",
+  "country": "US"
+}'
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "id": 2,
+    "first_name": "Jane",
+    "last_name": "Smith",
+    // ... other employee fields
+  },
+    "message": "Employee created successfully"
+  }
+  ```
+</CodeGroup>
+
+## Update Employee
+
+Update an existing employee's information.
+
+<CodeGroup>
+  ```bash Request
+  curl -X PUT https://api.paystub.dev/employees/1 \
+  -H "Authorization: Bearer your_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "email": "new.email@example.com",
+  "phone": "+1987654321"
+}'
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "id": 1,
+    "email": "new.email@example.com",
+    // ... other employee fields
+  },
+    "message": "Employee updated successfully"
+  }
+  ```
+</CodeGroup>
+
+## Delete Employee
+
+Delete an employee and their associated records.
+
+<CodeGroup>
+  ```bash Request
+  curl -X DELETE https://api.paystub.dev/employees/1 \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "message": "Employee deleted successfully"
+  }
+  ```
+</CodeGroup>
+
+## Security Considerations
+
+1. SSN is always masked in responses (XXX-XX-1234 format)
+2. Sensitive data is encrypted at rest
+3. Access is restricted by company and site
+4. Full SSN is only visible during creation/update
+
+## Error Handling
+
+- 401 Unauthenticated - Invalid or missing token
+- 403 Unauthorized - Insufficient permissions
+- 404 Not Found - Employee does not exist
+- 422 Validation Error - Invalid input data
+
+## Best Practices
+
+1. Always validate SSN format (XXX-XX-XXXX)
+2. Use proper country codes (ISO 2-letter)
+3. Keep employee information up to date
+4. Handle personal data in compliance with privacy laws

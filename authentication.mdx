@@ -1,0 +1,164 @@
+---
+title: 'Authentication'
+description: 'Authenticate and manage user sessions in the Payroll Service API'
+---
+
+The Payroll Service API uses bearer token authentication via Laravel Sanctum. All authenticated endpoints expect a bearer token in the Authorization header.
+
+## Getting Started
+
+To use the API, you'll need to:
+1. Register a new user account or login with existing credentials
+2. Use the returned access token in subsequent requests
+3. Include the token in your Authorization header
+
+## Bearer Token
+
+Include the access token in the Authorization header of your requests:
+
+```bash
+Authorization: Bearer your_access_token_here
+```
+
+## Available Endpoints
+
+### Register
+
+Create a new user account.
+
+<CodeGroup>
+  ```bash Request
+  curl -X POST https://api.paystub.dev/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "your_password",
+  "password_confirmation": "your_password"
+}'
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    // ... other user fields
+  },
+    "token": "1|abcdef123456..."
+  },
+    "message": "User registered successfully"
+  }
+  ```
+</CodeGroup>
+
+### Login
+
+Authenticate an existing user.
+
+<CodeGroup>
+  ```bash Request
+  curl -X POST https://api.paystub.dev/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+  "email": "john@example.com",
+  "password": "your_password"
+}'
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    // ... other user fields
+  },
+    "token": "1|abcdef123456..."
+  }
+  }
+  ```
+</CodeGroup>
+
+### Logout
+
+Invalidate the current access token.
+
+<CodeGroup>
+  ```bash Request
+  curl -X POST https://api.paystub.dev/auth/logout \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "message": "Successfully logged out"
+  }
+  ```
+</CodeGroup>
+
+### User Profile
+
+Get the authenticated user's details.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/auth/me \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    // ... other user fields
+  }
+  }
+  }
+  ```
+</CodeGroup>
+
+## Password Reset
+
+The API provides endpoints for password reset functionality:
+
+1. `/auth/forgot-password` - Request a password reset link
+2. `/auth/reset-password` - Reset password using the token from email
+
+## Token Expiration
+
+Access tokens expire after 24 hours. Use the refresh token endpoint to obtain a new token:
+
+<CodeGroup>
+  ```bash Request
+  curl -X POST https://api.paystub.dev/auth/refresh \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "token": "1|newtoken123..."
+  }
+  }
+  ```
+</CodeGroup>
+
+## Error Handling
+
+Common authentication errors include:
+
+- 401 Unauthenticated - Invalid or expired token
+- 422 Validation Error - Invalid input data
+- 429 Too Many Attempts - Rate limit exceeded
