@@ -28,7 +28,8 @@
   "tabs": [
     {
       "name": "API Reference",
-      "url": "api-reference"
+      "url": "api-reference",
+      "openapi": "/api-reference/openapi.json"
     }
   ],
   "anchors": [
@@ -67,14 +68,13 @@
       ]
     },
     {
-      "group": "API Resources",
+      "group": "API Reference",
       "pages": [
-        "resources/authentication",
-        "resources/sites",
-        "resources/users",
-        "resources/roles",
-        "resources/orders",
-        "resources/documents"
+        "api-reference/authentication",
+        "api-reference/users",
+        "api-reference/sites",
+        "api-reference/roles",
+        "api-reference/documents"
       ]
     },
     {
