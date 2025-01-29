@@ -1,0 +1,119 @@
+---
+title: 'Posts'
+description: 'Access blog posts in the Payroll Service API'
+---
+
+Posts represent blog articles and content in the system. Each post can be categorized and includes metadata like reading time and view counts. These endpoints provide read-only access to post data.
+
+## Data Structure
+
+```json
+{
+  "id": 1,
+  "site_id": 1,
+  "post_category_id": 2,
+  "user_id": 1,
+  "type": "blog",
+  "country": "US",
+  "title": "Understanding Payroll Taxes",
+  "slug": "understanding-payroll-taxes",
+  "excerpt": "A comprehensive guide to payroll taxes in the United States",
+  "content": "Detailed article content here...",
+  "meta": {
+    "keywords": ["payroll", "taxes", "guide"],
+    "description": "Learn about payroll taxes"
+  },
+  "faq": [
+    {
+      "question": "What are payroll taxes?",
+      "answer": "Detailed answer here..."
+    }
+  ],
+  "fact_check": {
+    "status": "verified",
+    "sources": ["IRS Publication 15"]
+  },
+  "minutes_to_read": 8,
+  "view_count": 1250,
+  "is_draft": false,
+  "published_at": "2024-01-28T12:00:00Z",
+  "created_at": "2024-01-28T10:00:00Z",
+  "updated_at": "2024-01-28T12:00:00Z"
+}
+```
+
+## List Posts
+
+Retrieve a paginated list of posts.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/posts
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": [
+  {
+    "id": 1,
+    "title": "Understanding Payroll Taxes",
+    // ... other post fields
+  }
+    ],
+    "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 3,
+    "per_page": 15,
+    "to": 15,
+    "total": 45
+  }
+  }
+  ```
+</CodeGroup>
+
+### Available Filters
+
+- `filter[type]` - Filter by post type
+- `filter[country]` - Filter by country
+- `filter[title]` - Filter by title
+- `filter[post_category_id]` - Filter by category ID
+- `filter[is_draft]` - Filter only published posts (false) or drafts (true)
+- `sort` - Sort by field (e.g., `title`, `-published_at`, `view_count`)
+- `include` - Include related resources (e.g., `postCategory`, `user`)
+- `per_page` - Number of items per page (default: 15)
+
+## Get Post
+
+Retrieve a specific post by ID.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/posts/1
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "id": 1,
+    "title": "Understanding Payroll Taxes",
+    // ... other post fields
+  }
+  }
+  ```
+</CodeGroup>
+
+## Error Handling
+
+- 404 Not Found - Post does not exist
+- 422 Validation Error - Invalid input data
+
+## Best Practices
+
+1. Cache responses for improved performance
+2. Use appropriate filters to get relevant content
+3. Include related data only when needed
+4. Consider using smaller page sizes for large content
+5. Handle site-specific content appropriately

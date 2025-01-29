@@ -59,7 +59,9 @@
         "employees",
         "documents",
         "orders",
-        "transactions"
+        "transactions",
+        "post-categories",
+        "posts"
       ]
     },
     {

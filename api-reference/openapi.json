@@ -675,6 +675,114 @@
             "format": "date-time"
           }
         }
+      },
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "site_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "post_category_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "user_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "excerpt": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string"
+          },
+          "meta": {
+            "type": "object",
+            "nullable": true
+          },
+          "faq": {
+            "type": "object",
+            "nullable": true
+          },
+          "fact_check": {
+            "type": "object",
+            "nullable": true
+          },
+          "minutes_to_read": {
+            "type": "integer"
+          },
+          "view_count": {
+            "type": "integer"
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+
+      "PostCategory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "site_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     }
   },
@@ -702,6 +810,14 @@
     {
       "name": "Transactions",
       "description": "Operations about transactions"
+    },
+    {
+      "name": "Posts",
+      "description": "Operations about posts"
+    },
+    {
+      "name": "Post Categories",
+      "description": "Operations about post categories"
     }
   ],
   "paths": {
@@ -2500,6 +2616,304 @@
                       "properties": {
                         "data": {
                           "$ref": "#/components/schemas/Transaction"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post-categories": {
+      "get": {
+        "tags": ["Post Categories"],
+        "summary": "List post categories",
+        "description": "Get a paginated list of post categories",
+        "operationId": "listPostCategories",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "filter[type]",
+            "in": "query",
+            "description": "Filter by category type",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[country]",
+            "in": "query",
+            "description": "Filter by country",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[name]",
+            "in": "query",
+            "description": "Filter by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "Include related resources",
+            "schema": {
+              "type": "string",
+              "enum": ["posts", "site"]
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort by field",
+            "schema": {
+              "type": "string",
+              "enum": ["name", "-name", "created_at", "-created_at"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of post categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {"$ref": "#/components/schemas/SuccessResponse"},
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PostCategory"
+                          }
+                        },
+                        "meta": {
+                          "type": "object",
+                          "properties": {
+                            "total": {"type": "integer"},
+                            "per_page": {"type": "integer"},
+                            "current_page": {"type": "integer"},
+                            "last_page": {"type": "integer"}
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post-categories/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Post Category ID",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Post Categories"],
+        "summary": "Get a post category",
+        "description": "Get post category details by ID",
+        "operationId": "getPostCategory",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "include",
+            "in": "query",
+            "description": "Include related resources",
+            "schema": {
+              "type": "string",
+              "enum": ["posts", "site"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post category details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {"$ref": "#/components/schemas/SuccessResponse"},
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PostCategory"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts": {
+      "get": {
+        "tags": ["Posts"],
+        "summary": "List posts",
+        "description": "Get a paginated list of posts",
+        "operationId": "listPosts",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "filter[type]",
+            "in": "query",
+            "description": "Filter by post type",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[country]",
+            "in": "query",
+            "description": "Filter by country",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[title]",
+            "in": "query",
+            "description": "Filter by title",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[post_category_id]",
+            "in": "query",
+            "description": "Filter by category ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "filter[is_draft]",
+            "in": "query",
+            "description": "Filter by draft status",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "Include related resources",
+            "schema": {
+              "type": "string",
+              "enum": ["postCategory", "user", "site"]
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort by field",
+            "schema": {
+              "type": "string",
+              "enum": ["title", "-title", "created_at", "-created_at", "published_at", "-published_at", "view_count", "-view_count"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {"$ref": "#/components/schemas/SuccessResponse"},
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Post"
+                          }
+                        },
+                        "meta": {
+                          "type": "object",
+                          "properties": {
+                            "total": {"type": "integer"},
+                            "per_page": {"type": "integer"},
+                            "current_page": {"type": "integer"},
+                            "last_page": {"type": "integer"}
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Post ID",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Posts"],
+        "summary": "Get a post",
+        "description": "Get post details by ID",
+        "operationId": "getPost",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "include",
+            "in": "query",
+            "description": "Include related resources",
+            "schema": {
+              "type": "string",
+              "enum": ["postCategory", "user", "site"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {"$ref": "#/components/schemas/SuccessResponse"},
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Post"
                         }
                       }
                     }

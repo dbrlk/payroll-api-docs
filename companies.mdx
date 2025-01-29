@@ -3,7 +3,7 @@ title: 'Companies'
 description: 'Manage company information in the Payroll Service API'
 ---
 
-Companies represent business entities in the system. Each company can have multiple employees and documents associated with it. All company operations require authentication.
+Companies represent business entities in the system. Each company can have multiple employees and documents associated with it. Companies are also linked to orders for document generation and their corresponding transactions. All company operations require authentication.
 
 ## Data Structure
 
@@ -27,6 +27,8 @@ Companies represent business entities in the system. Each company can have multi
   },
   "employees_count": 5,
   "documents_count": 10,
+  "orders_count": 3,
+  "total_spent": 299.97,
   "created_at": "2024-01-28T12:00:00Z",
   "updated_at": "2024-01-28T12:00:00Z"
 }
@@ -68,8 +70,10 @@ Retrieve a paginated list of companies.
 
 - `filter[name]` - Filter by company name
 - `filter[email]` - Filter by company email
-- `sort` - Sort by field (e.g., `name`, `-created_at`)
-- `include` - Include related resources (e.g., `employees`, `documents`)
+- `filter[total_spent_min]` - Filter by minimum total spent amount
+- `filter[total_spent_max]` - Filter by maximum total spent amount
+- `sort` - Sort by field (e.g., `name`, `-created_at`, `-total_spent`)
+- `include` - Include related resources (e.g., `employees`, `documents`, `orders`)
 - `per_page` - Number of items per page (default: 15)
 
 ## Create Company
@@ -151,6 +155,15 @@ Delete a company and all associated records.
   ```
 </CodeGroup>
 
+## Relationships
+
+- **Site**: Each company belongs to a site
+- **User**: Each company belongs to a user who created it
+- **Employees**: A company can have multiple employees
+- **Documents**: A company can have multiple documents
+- **Orders**: A company can have multiple orders
+- **Transactions**: All transactions are associated with orders
+
 ## Error Handling
 
 - 401 Unauthenticated - Invalid or missing token
@@ -164,3 +177,5 @@ Delete a company and all associated records.
 2. Use proper country codes (ISO 2-letter)
 3. Include complete address information
 4. Handle sensitive data (EIN) securely
+5. Monitor company spending limits
+6. Track order and transaction histo

@@ -3,7 +3,7 @@ title: 'Documents'
 description: 'Manage payroll documents in the Payroll Service API'
 ---
 
-Documents represent various payroll-related files such as paystubs, W2s, 1099s, and invoices. Each document is associated with a company and/or employee and goes through a processing lifecycle.
+Documents represent various payroll-related files such as paystubs, W2s, 1099s, and invoices. Each document is associated with an order and can be linked to a company and/or employee. Documents go through a processing lifecycle and require authentication to access.
 
 ## Data Structure
 
@@ -24,11 +24,26 @@ Documents represent various payroll-related files such as paystubs, W2s, 1099s, 
     // Document-specific content
   },
   "storage_data": {
-    // Storage-related metadata
+    "path": "documents/2024/01/123e4567.pdf",
+    "filename": "paystub.pdf",
+    "mime_type": "application/pdf",
+    "size": 245678
   },
   "status": "Completed",
+  "errors": {
+    // Processing errors if any
+  },
   "created_at": "2024-01-28T12:00:00Z",
-  "updated_at": "2024-01-28T12:00:00Z"
+  "updated_at": "2024-01-28T12:00:00Z",
+  "order": {
+    // Order details
+  },
+  "company": {
+    // Company details
+  },
+  "employee": {
+    // Employee details
+  }
 }
 ```
 
@@ -41,7 +56,7 @@ Documents represent various payroll-related files such as paystubs, W2s, 1099s, 
 
 ## Document Status
 
-1. `Pending` - Initial state after creation
+1. `Pending` - Order created but generation not started
 2. `Processing` - Document is being generated
 3. `Completed` - Document is ready for download
 4. `Failed` - Error occurred during processing
@@ -84,10 +99,13 @@ Retrieve a paginated list of documents.
 - `filter[uuid]` - Filter by UUID
 - `filter[type]` - Filter by document type
 - `filter[status]` - Filter by status
+- `filter[order_id]` - Filter by order ID
 - `filter[company_id]` - Filter by company ID
 - `filter[employee_id]` - Filter by employee ID
+- `filter[date_from]` - Filter by start date
+- `filter[date_to]` - Filter by end date
 - `sort` - Sort by field (e.g., `created_at`, `-status`)
-- `include` - Include related resources (e.g., `company`, `employee`)
+- `include` - Include related resources (e.g., `order`, `company`, `employee`)
 - `per_page` - Number of items per page (default: 15)
 
 ## Download Document
@@ -101,17 +119,30 @@ Download a processed document by its UUID.
   ```
 
   ```bash Response
-  # Returns PDF file content
+  # Returns PDF file content with appropriate headers:
+  # Content-Type: application/pdf
+  # Content-Disposition: attachment; filename="paystub.pdf"
   ```
 </CodeGroup>
 
-## Document Processing
+## Document Processing Lifecycle
 
-1. Document is created with initial content
-2. Status changes to `Processing`
-3. PDF is generated using template and content
-4. Final document is stored and status updates to `Completed`
-5. Document becomes available for download
+1. Document is created as part of an order
+2. Initial status is `Pending`
+3. Background job picks up the document
+4. Status changes to `Processing`
+5. Content is processed using template
+6. PDF file is generated and stored
+7. Status updates to `Completed` or `Failed`
+8. Document becomes available for download if completed
+
+## Relationships
+
+- **Order**: Each document belongs to an order
+- **Company**: Document can be associated with a company
+- **Employee**: Document can be associated with an employee
+- **User**: Document belongs to the user who created the order
+- **Site**: Document belongs to a specific site
 
 ## Error Handling
 
@@ -123,13 +154,15 @@ Download a processed document by its UUID.
 ## Best Practices
 
 1. Always check document status before download
-2. Store UUIDs for future reference
+2. Store document UUIDs for future reference
 3. Handle processing errors gracefully
-4. Implement proper retry mechanisms
-5. Follow document type-specific content guidelines
+4. Monitor document status changes
+5. Implement proper retry mechanisms
+6. Follow document type-specific content guidelines
+7. Use appropriate filters to find documents efficiently
 
 ## Rate Limiting
 
 Document operations are subject to rate limiting:
 - List operations: 60 requests per minute
-- Download operations: 30 requests per minute
+- Download operations: 20 requests per minute

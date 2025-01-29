@@ -1,0 +1,95 @@
+---
+title: 'Post Categories'
+description: 'Access blog post categories in the Payroll Service API'
+---
+
+Post Categories help organize blog posts by topics and types. Each category can contain multiple posts and is associated with a specific site. These endpoints provide read-only access to post category data.
+
+## Data Structure
+
+```json
+{
+  "id": 1,
+  "site_id": 1,
+  "type": "blog",
+  "country": "US",
+  "name": "Payroll Guides",
+  "slug": "payroll-guides",
+  "created_at": "2024-01-28T12:00:00Z",
+  "updated_at": "2024-01-28T12:00:00Z",
+  "posts_count": 15
+}
+```
+
+## List Categories
+
+Retrieve a paginated list of post categories.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/post-categories
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": [
+  {
+    "id": 1,
+    "name": "Payroll Guides",
+    // ... other category fields
+  }
+    ],
+    "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 3,
+    "per_page": 15,
+    "to": 15,
+    "total": 45
+  }
+  }
+  ```
+</CodeGroup>
+
+### Available Filters
+
+- `filter[type]` - Filter by category type
+- `filter[country]` - Filter by country
+- `filter[name]` - Filter by category name
+- `sort` - Sort by field (e.g., `name`, `-created_at`)
+- `include` - Include related resources (e.g., `posts`, `site`)
+- `per_page` - Number of items per page (default: 15)
+
+## Get Category
+
+Retrieve a specific category by ID.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/post-categories/1
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "id": 1,
+    "name": "Payroll Guides",
+    // ... other category fields
+  }
+  }
+  ```
+</CodeGroup>
+
+## Error Handling
+
+- 404 Not Found - Category does not exist
+- 422 Validation Error - Invalid input data
+
+## Best Practices
+
+1. Cache responses for improved performance
+2. Use appropriate filters to minimize data transfer
+3. Include related data only when needed
+4. Handle site-specific content appropriately
