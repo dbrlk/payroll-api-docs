@@ -31,7 +31,8 @@ Create a new user account.
   curl -X POST https://api.paystub.dev/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-  "name": "John Doe",
+  "first_name": "John",
+  "last_name": "Doe",
   "email": "john@example.com",
   "password": "your_password",
   "password_confirmation": "your_password"
