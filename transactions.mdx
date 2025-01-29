@@ -1,0 +1,106 @@
+---
+title: 'Transactions'
+description: 'Manage transaction information in the Payroll Service API'
+---
+
+Transactions represent payment records in the system. Each transaction is associated with an order and tracks payment processing details. All transaction operations require authentication.
+
+## Data Structure
+
+```json
+{
+  "id": 1,
+  "site_id": 1,
+  "user_id": 1,
+  "order_id": 1,
+  "processor": "Stripe",
+  "processor_id": "ch_123456789",
+  "amount": 299.99,
+  "type": "Sale",
+  "status": "completed",
+  "created_at": "2024-01-28T12:00:00Z",
+  "updated_at": "2024-01-28T12:00:00Z"
+}
+```
+
+## List Transactions
+
+Retrieve a paginated list of transactions.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/transactions \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": [
+  {
+    "id": 1,
+    "processor": "Stripe",
+    // ... other transaction fields
+  }
+    ],
+    "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 3,
+    "per_page": 15,
+    "to": 15,
+    "total": 45
+  }
+  }
+  ```
+</CodeGroup>
+
+### Available Filters
+
+- `filter[status]` - Filter by status (pending, processing, completed, failed)
+- `filter[type]` - Filter by transaction type (Sale, Refund, Void, Free)
+- `filter[processor]` - Filter by payment processor (Stripe, NMI, Coinbase)
+- `filter[order_id]` - Filter by order ID
+- `filter[amount_min]` - Filter by minimum amount
+- `filter[amount_max]` - Filter by maximum amount
+- `sort` - Sort by field (e.g., `-created_at`, `amount`, `status`, `type`)
+- `include` - Include related resources (e.g., `order`, `user`)
+- `per_page` - Number of items per page (default: 15)
+
+## Get Transaction
+
+Retrieve details of a specific transaction.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/transactions/1 \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "id": 1,
+    "processor": "Stripe",
+    "amount": 299.99,
+    // ... other transaction fields
+  }
+  }
+  ```
+</CodeGroup>
+
+## Error Handling
+
+- 401 Unauthenticated - Invalid or missing token
+- 403 Unauthorized - Insufficient permissions
+- 404 Not Found - Transaction does not exist
+- 422 Validation Error - Invalid input data
+
+## Best Practices
+
+1. Always verify transaction amounts match order totals
+2. Handle processor-specific response codes appropriately
+3. Maintain secure storage of processor IDs and responses
+4. Implement proper reconciliation processes
+5. Keep sensitive payment data encrypted

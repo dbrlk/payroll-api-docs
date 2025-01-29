@@ -1,0 +1,108 @@
+---
+title: 'Orders'
+description: 'Manage order information in the Payroll Service API'
+---
+
+Orders represent document generation requests in the system. Each order can have multiple documents and transactions associated with it. All order operations require authentication.
+
+## Data Structure
+
+```json
+{
+  "id": 1,
+  "site_id": 1,
+  "user_id": 1,
+  "uuid": "123e4567-e89b-12d3-a456-426614174000",
+  "currency": "USD",
+  "total": 299.99,
+  "discount": 0.00,
+  "tax": 0.00,
+  "net": 299.99,
+  "status": "Completed",
+  "documents_count": 3,
+  "transactions_count": 1,
+  "created_at": "2024-01-28T12:00:00Z",
+  "updated_at": "2024-01-28T12:00:00Z"
+}
+```
+
+## List Orders
+
+Retrieve a paginated list of orders.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/orders \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": [
+  {
+    "id": 1,
+    "uuid": "123e4567-e89b-12d3-a456-426614174000",
+    // ... other order fields
+  }
+    ],
+    "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 3,
+    "per_page": 15,
+    "to": 15,
+    "total": 45
+  }
+  }
+  ```
+</CodeGroup>
+
+### Available Filters
+
+- `filter[status]` - Filter by order status (Pending, Processing, Completed, etc.)
+- `filter[date_from]` - Filter by start date (YYYY-MM-DD)
+- `filter[date_to]` - Filter by end date (YYYY-MM-DD)
+- `filter[total_min]` - Filter by minimum total amount
+- `filter[total_max]` - Filter by maximum total amount
+- `sort` - Sort by field (e.g., `-created_at`, `total`, `status`)
+- `include` - Include related resources (e.g., `documents`, `transactions`)
+- `per_page` - Number of items per page (default: 15)
+
+## Get Order
+
+Retrieve details of a specific order.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/orders/123e4567-e89b-12d3-a456-426614174000 \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": {
+    "id": 1,
+    "uuid": "123e4567-e89b-12d3-a456-426614174000",
+    "currency": "USD",
+    "total": 299.99,
+    // ... other order fields
+  }
+  }
+  ```
+</CodeGroup>
+
+## Error Handling
+
+- 401 Unauthenticated - Invalid or missing token
+- 403 Unauthorized - Insufficient permissions
+- 404 Not Found - Order does not exist
+- 422 Validation Error - Invalid input data
+
+## Best Practices
+
+1. Always use UUID for external references
+2. Monitor order status transitions
+3. Handle currency amounts with proper decimal precision
+4. Maintain proper audit trail for financial transactions

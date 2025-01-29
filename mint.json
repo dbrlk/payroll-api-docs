@@ -57,7 +57,9 @@
         "authentication",
         "companies",
         "employees",
-        "documents"
+        "documents",
+        "orders",
+        "transactions"
       ]
     },
     {
