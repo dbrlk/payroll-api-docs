@@ -1,0 +1,248 @@
+---
+title: 'Error Handling'
+description: 'Learn how to handle errors in the Payroll Service API'
+---
+
+The API uses conventional HTTP response codes to indicate the success or failure of requests. Error responses follow a consistent format to help you handle errors programmatically.
+
+## Error Response Format
+
+```json
+{
+  "success": false,
+  "message": "A human-readable error message",
+  "errors": {
+    "field_name": [
+      "Specific error message for this field"
+    ]
+  }
+}
+```
+
+## HTTP Status Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | Success - The request was successful |
+| 201  | Created - A new resource was successfully created |
+| 400  | Bad Request - The request was malformed |
+| 401  | Unauthorized - No valid API token provided |
+| 403  | Forbidden - Valid token, but insufficient permissions |
+| 404  | Not Found - The requested resource doesn't exist |
+| 422  | Unprocessable Entity - Validation errors |
+| 429  | Too Many Requests - Rate limit exceeded |
+| 500  | Internal Server Error - Something went wrong on our end |
+
+## Common Error Types
+
+### Authentication Errors (401)
+```json
+{
+  "success": false,
+  "message": "Unauthenticated.",
+  "errors": null
+}
+```
+
+### Authorization Errors (403)
+```json
+{
+  "success": false,
+  "message": "This action is unauthorized.",
+  "errors": null
+}
+```
+
+### Resource Not Found (404)
+```json
+{
+  "success": false,
+  "message": "Resource not found.",
+  "errors": null
+}
+```
+
+### Validation Errors (422)
+```json
+{
+  "success": false,
+  "message": "The given data was invalid.",
+  "errors": {
+    "email": [
+      "The email field is required.",
+      "The email must be a valid email address."
+    ],
+    "password": [
+      "The password must be at least 8 characters."
+    ]
+  }
+}
+```
+
+### Rate Limit Errors (429)
+```json
+{
+  "success": false,
+  "message": "Too Many Attempts.",
+  "errors": {
+    "detail": "Rate limit exceeded. Please try again later."
+  }
+}
+```
+
+## Error Handling Examples
+
+### JavaScript
+```javascript
+async function makeApiRequest() {
+  try {
+    const response = await fetch('https://api.paystub.dev/companies', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      switch (response.status) {
+        case 401:
+          // Handle authentication error
+          handleAuthError();
+          break;
+        case 403:
+          // Handle authorization error
+          handleForbiddenError();
+          break;
+        case 422:
+          // Handle validation errors
+          handleValidationErrors(data.errors);
+          break;
+        case 429:
+          // Handle rate limit
+          await handleRateLimit(response.headers);
+          break;
+        default:
+          // Handle other errors
+          handleGenericError(data.message);
+      }
+      return;
+    }
+
+    return data;
+  } catch (error) {
+    // Handle network errors
+    handleNetworkError(error);
+  }
+}
+
+function handleValidationErrors(errors) {
+  for (const [field, messages] of Object.entries(errors)) {
+    console.error(`${field}: ${messages.join(', ')}`);
+  }
+}
+
+async function handleRateLimit(headers) {
+  const resetTime = headers.get('X-RateLimit-Reset');
+  const waitTime = Math.max(0, resetTime - Math.floor(Date.now() / 1000));
+
+  console.warn(`Rate limit exceeded. Waiting ${waitTime} seconds...`);
+  await new Promise(resolve => setTimeout(resolve, waitTime * 1000));
+}
+```
+
+### PHP
+```php
+try {
+    $response = $client->get('https://api.paystub.dev/companies', [
+        'headers' => [
+            'Authorization' => 'Bearer ' . $token
+        ]
+    ]);
+} catch (ClientException $e) {
+    $response = $e->getResponse();
+    $errorData = json_decode($response->getBody()->getContents(), true);
+
+    switch ($response->getStatusCode()) {
+        case 401:
+            // Handle authentication error
+            handleAuthError();
+            break;
+        case 422:
+            // Handle validation errors
+            handleValidationErrors($errorData['errors']);
+            break;
+        // ... handle other status codes
+    }
+}
+
+function handleValidationErrors(array $errors): void
+{
+    foreach ($errors as $field => $messages) {
+        error_log("Validation error in {$field}: " . implode(', ', $messages));
+    }
+}
+```
+
+## Best Practices
+
+1. **Always Check Status Code**
+- Don't assume request success
+- Handle different status codes appropriately
+- Use status code constants/enums
+
+2. **Validate Before Sending**
+- Check required fields
+- Validate data formats
+- Handle client-side validation first
+
+3. **Implement Retry Logic**
+- Use exponential backoff
+- Only retry idempotent operations
+- Set maximum retry attempts
+
+4. **Log Errors Properly**
+- Include request context
+- Log validation failures
+- Track error patterns
+
+5. **Handle Rate Limits**
+- Check rate limit headers
+- Implement waiting mechanism
+- Use request queuing when needed
+
+6. **User-Friendly Messages**
+- Transform API errors to user-friendly messages
+- Localize error messages
+- Provide clear action items
+
+## Monitoring and Debugging
+
+- Use request IDs for tracking
+- Monitor error rates and patterns
+- Set up alerts for critical errors
+- Keep error logs for debugging
+
+## Common Validation Rules
+
+| Field | Rules |
+|-------|--------|
+| Email | Required, valid format, max 255 chars |
+| Password | Min 8 chars, must contain numbers |
+| Phone | Valid format, optional |
+| EIN | XX-XXXXXXX format |
+| SSN | XXX-XX-XXXX format |
+| Country | 2-letter ISO code |
+| ZIP/Postal | Required, format varies by country |
+| Currency | 3-letter ISO code |
+
+## Error Prevention
+
+1. Use type safety
+2. Validate input data
+3. Handle edge cases
+4. Test error scenarios
+5. Monitor API usage
+6. Implement rate limiting
+7. Use proper authentication
+8. Validate file uploads

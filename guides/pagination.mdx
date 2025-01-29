@@ -1,0 +1,88 @@
+---
+title: 'Pagination'
+description: 'Learn how to work with paginated responses in the API'
+---
+
+The API uses cursor-based pagination to handle large collections of data. This is implemented using Laravel's pagination system and Spatie's Query Builder.
+
+## Pagination Structure
+
+```json
+{
+  "success": true,
+  "data": [
+    // Array of items
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 3,
+    "per_page": 15,
+    "to": 15,
+    "total": 45
+  }
+}
+```
+
+## Usage
+
+### Basic Pagination
+
+Add the `page` parameter to get a specific page:
+
+```bash
+curl https://api.paystub.dev/companies?page=2
+```
+
+### Customize Items Per Page
+
+Use the `per_page` parameter (default: 15, max: 100):
+
+```bash
+curl https://api.paystub.dev/companies?per_page=50
+```
+
+### Navigate Through Pages
+
+Use the metadata to navigate:
+- `current_page`: Current page number
+- `last_page`: Total number of pages
+- `total`: Total number of items
+- `per_page`: Items per page
+- `from`: Starting item number
+- `to`: Ending item number
+
+## Best Practices
+
+1. Always check `meta.last_page` to know when to stop paginating
+2. Use reasonable `per_page` values to optimize performance
+3. Handle empty pages gracefully
+4. Cache paginated results when appropriate
+
+## Example Implementation
+
+```javascript
+async function fetchAllCompanies() {
+  let currentPage = 1;
+  const results = [];
+
+  while (true) {
+    const response = await fetch(`https://api.paystub.dev/companies?page=${currentPage}`);
+    const data = await response.json();
+
+    results.push(...data.data);
+
+    if (currentPage >= data.meta.last_page) break;
+    currentPage++;
+  }
+
+  return results;
+}
+```
+
+## Notes
+
+- Pagination is mandatory for list endpoints
+- Maximum of 100 items per page
+- Use filtering to reduce the total number of pages
+- Consider using cursor-based pagination for real-time data

@@ -1,0 +1,156 @@
+---
+title: 'Rate Limiting'
+description: 'Understanding API rate limits and best practices'
+---
+
+# Rate Limiting
+
+To ensure system stability and fair usage, the API implements different rate limits based on endpoint types. Rate limits are applied per authenticated token and IP address.
+
+## Rate Limits
+
+### Authentication Endpoints
+| Endpoint | Rate Limit | Window |
+|----------|------------|--------|
+| Login | 10 requests | per minute |
+| Register | 10 requests | per minute |
+| Forgot Password | 10 requests | per minute |
+| Reset Password | 10 requests | per minute |
+
+### Authenticated Routes
+| Operation Type | Rate Limit | Window |
+|---------------|------------|---------|
+| GET (List/Show) | 60 requests | per minute |
+| POST/PUT/DELETE | 30 requests | per minute |
+| Document Downloads | 20 requests | per minute |
+| Auth Operations (me, logout, refresh) | 30 requests | per minute |
+
+## Rate Limit Headers
+
+All responses include rate limit information in headers:
+
+```bash
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 58
+X-RateLimit-Reset: 1526456400
+```
+
+- `X-RateLimit-Limit`: Maximum requests allowed in the current window
+- `X-RateLimit-Remaining`: Remaining requests in current window
+- `X-RateLimit-Reset`: Unix timestamp when the limit resets
+
+## Rate Limit Response
+
+When you exceed the rate limit, you'll receive a 429 (Too Many Requests) response:
+
+```json
+{
+  "success": false,
+  "message": "Too Many Attempts.",
+  "errors": {
+    "detail": "Rate limit exceeded. Please try again later."
+  }
+}
+```
+
+## Best Practices
+
+### 1. Implement Backoff Strategy
+```javascript
+async function fetchWithRetry(url, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const response = await fetch(url);
+      if (response.status === 429) {
+        const resetTime = response.headers.get('X-RateLimit-Reset');
+        const waitTime = Math.pow(2, i) * 1000;
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        continue;
+      }
+      return response;
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+    }
+  }
+}
+```
+
+### 2. Batch Operations
+Instead of multiple requests:
+```bash
+# Not recommended
+GET /companies/1
+GET /companies/2
+GET /companies/3
+
+# Better approach
+GET /companies?filter[id]=1,2,3
+```
+
+### 3. Monitor Rate Limits
+```javascript
+function checkRateLimit(response) {
+  const remaining = response.headers.get('X-RateLimit-Remaining');
+  if (remaining < 5) {
+    console.warn('Rate limit running low:', remaining);
+  }
+}
+```
+
+### 4. Use Caching
+```javascript
+const cache = new Map();
+
+async function fetchWithCache(url, ttl = 60000) {
+  if (cache.has(url)) {
+    const { data, timestamp } = cache.get(url);
+    if (Date.now() - timestamp < ttl) {
+      return data;
+    }
+  }
+
+  const response = await fetch(url);
+  const data = await response.json();
+
+  cache.set(url, {
+    data,
+    timestamp: Date.now()
+  });
+
+  return data;
+}
+```
+
+## Rate Limit Strategy
+
+Our rate limiting strategy is designed with these principles:
+
+1. **Authentication Protection**: Stricter limits on auth endpoints to prevent brute force
+2. **Read vs Write**: Higher limits for read operations, lower for write operations
+3. **Resource Intensive Operations**: Specific limits for operations like document downloads
+4. **User Experience**: Balanced to allow normal usage while preventing abuse
+
+## Common Issues and Solutions
+
+### Rate Limit Exceeded
+- Implement exponential backoff
+- Use bulk endpoints where available
+- Cache frequently accessed data
+- Monitor rate limit headers
+
+### Multiple Environments
+- Use separate API keys per environment
+- Monitor usage across environments
+- Adjust client-side rate limiting per environment
+
+### Concurrent Requests
+- Implement request queuing
+- Batch requests where possible
+- Use bulk operations endpoints
+
+## Enterprise Usage
+
+For higher rate limits and custom solutions:
+- Contact our support team
+- Consider dedicated API keys
+- Explore custom rate limit plans

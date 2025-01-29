@@ -1,0 +1,159 @@
+---
+title: 'Including Relations'
+description: 'Learn how to include related resources in API responses'
+---
+
+The API supports including related resources in responses using Spatie Query Builder v6. This helps reduce the number of API calls needed to fetch related data.
+
+## Basic Usage
+
+Use the `include` parameter to specify related resources:
+
+```bash
+# Include company's employees
+curl https://api.paystub.dev/companies?include=employees
+
+# Include document's company and employee
+curl https://api.paystub.dev/documents?include=company,employee
+```
+
+## Available Includes
+
+### Companies
+- `employees`
+- `documents`
+
+### Employees
+- `company`
+- `documents`
+
+### Documents
+- `company`
+- `employee`
+
+## Nested Relations
+
+Include nested relations using dot notation:
+
+```bash
+# Include employee's company and its documents
+curl https://api.paystub.dev/employees?include=company.documents
+```
+
+## Multiple Relations
+
+Combine multiple includes with commas:
+
+```bash
+# Include both company and documents for employees
+curl https://api.paystub.dev/employees?include=company,documents
+```
+
+## Combining with Other Features
+
+Includes can be used with filtering, sorting, and pagination:
+
+```bash
+curl https://api.paystub.dev/companies?\
+include=employees,documents\
+&filter[status]=active\
+&sort=-created_at\
+&page=1
+```
+
+## Response Format
+
+When including relations, they appear as nested objects:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Acme Inc",
+    "created_at": "2024-01-28T12:00:00Z",
+    "updated_at": "2024-01-28T12:00:00Z",
+    "employees": [
+      {
+        "id": 1,
+        "first_name": "John",
+        "last_name": "Doe",
+        "created_at": "2024-01-28T12:00:00Z",
+        "updated_at": "2024-01-28T12:00:00Z"
+      }
+    ],
+    "documents": [
+      {
+        "id": 1,
+        "type": "Paystub",
+        "status": "Completed",
+        "created_at": "2024-01-28T12:00:00Z",
+        "updated_at": "2024-01-28T12:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+## Performance Considerations
+
+1. **N+1 Query Prevention**: Includes are optimized to prevent N+1 queries using eager loading
+
+2. **Selective Loading**: Only request relations you need:
+```bash
+# Good: Specific include
+curl https://api.paystub.dev/companies?include=employees
+
+# Better: Include with specific filters
+curl https://api.paystub.dev/companies?include=employees&filter[status]=active
+```
+
+3. **Limit Nesting Depth**: Deep nesting can impact performance:
+```bash
+# Avoid deep nesting
+curl https://api.paystub.dev/companies?include=employees.documents.company.employees
+```
+
+## Best Practices
+
+1. Only include necessary relations
+2. Use filters with includes to limit data size
+3. Consider pagination when including one-to-many relations
+4. Cache responses with includes when possible
+5. Monitor query performance with includes
+
+## Error Handling
+
+Invalid includes will return a 422 error:
+
+```json
+{
+  "success": false,
+  "message": "Invalid include parameter",
+  "errors": {
+    "include": ["The included relationship [invalid] is not allowed."]
+  }
+}
+```
+
+## Count Relations
+
+You can also get the count of relations without loading them:
+
+```bash
+# Get companies with employee and document counts
+curl https://api.paystub.dev/companies?include=employees_count,documents_count
+```
+
+This will return:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Acme Inc",
+    "employees_count": 5,
+    "documents_count": 10
+  }
+}
+```

@@ -1,0 +1,135 @@
+---
+title: 'Documents'
+description: 'Manage payroll documents in the Payroll Service API'
+---
+
+Documents represent various payroll-related files such as paystubs, W2s, 1099s, and invoices. Each document is associated with a company and/or employee and goes through a processing lifecycle.
+
+## Data Structure
+
+```json
+{
+  "id": 1,
+  "site_id": 1,
+  "user_id": 1,
+  "order_id": 1,
+  "company_id": 1,
+  "employee_id": 1,
+  "uuid": "123e4567-e89b-12d3-a456-426614174000",
+  "type": "Paystub",
+  "template_id": "template_1",
+  "color_id": "blue",
+  "quantity": 1,
+  "content": {
+    // Document-specific content
+  },
+  "storage_data": {
+    // Storage-related metadata
+  },
+  "status": "Completed",
+  "created_at": "2024-01-28T12:00:00Z",
+  "updated_at": "2024-01-28T12:00:00Z"
+}
+```
+
+## Document Types
+
+- `Paystub` - Employee pay statements
+- `W2` - Annual wage and tax statements
+- `1099-MISC` - Independent contractor earnings
+- `Invoice` - Billing documents
+
+## Document Status
+
+1. `Pending` - Initial state after creation
+2. `Processing` - Document is being generated
+3. `Completed` - Document is ready for download
+4. `Failed` - Error occurred during processing
+
+## List Documents
+
+Retrieve a paginated list of documents.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/documents \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```json Response
+  {
+    "success": true,
+    "data": [
+  {
+    "id": 1,
+    "uuid": "123e4567-e89b-12d3-a456-426614174000",
+    "type": "Paystub",
+    // ... other document fields
+  }
+    ],
+    "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 3,
+    "per_page": 15,
+    "to": 15,
+    "total": 45
+  }
+  }
+  ```
+</CodeGroup>
+
+### Available Filters
+
+- `filter[uuid]` - Filter by UUID
+- `filter[type]` - Filter by document type
+- `filter[status]` - Filter by status
+- `filter[company_id]` - Filter by company ID
+- `filter[employee_id]` - Filter by employee ID
+- `sort` - Sort by field (e.g., `created_at`, `-status`)
+- `include` - Include related resources (e.g., `company`, `employee`)
+- `per_page` - Number of items per page (default: 15)
+
+## Download Document
+
+Download a processed document by its UUID.
+
+<CodeGroup>
+  ```bash Request
+  curl https://api.paystub.dev/documents/123e4567-e89b-12d3-a456-426614174000/download \
+  -H "Authorization: Bearer your_token_here"
+  ```
+
+  ```bash Response
+  # Returns PDF file content
+  ```
+</CodeGroup>
+
+## Document Processing
+
+1. Document is created with initial content
+2. Status changes to `Processing`
+3. PDF is generated using template and content
+4. Final document is stored and status updates to `Completed`
+5. Document becomes available for download
+
+## Error Handling
+
+- 401 Unauthenticated - Invalid or missing token
+- 403 Unauthorized - Insufficient permissions
+- 404 Not Found - Document does not exist
+- 422 Validation Error - Invalid input data
+
+## Best Practices
+
+1. Always check document status before download
+2. Store UUIDs for future reference
+3. Handle processing errors gracefully
+4. Implement proper retry mechanisms
+5. Follow document type-specific content guidelines
+
+## Rate Limiting
+
+Document operations are subject to rate limiting:
+- List operations: 60 requests per minute
+- Download operations: 30 requests per minute

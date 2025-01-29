@@ -1,0 +1,105 @@
+---
+title: 'Sorting'
+description: 'Learn how to sort API results using Spatie Query Builder'
+---
+
+The API uses Spatie Query Builder v6 to provide flexible sorting capabilities. You can sort results by one or multiple fields using the `sort` parameter.
+
+## Basic Sorting
+
+Use the `sort` parameter with the field name:
+
+```bash
+# Sort companies by name (ascending)
+curl https://api.paystub.dev/companies?sort=name
+
+# Sort companies by name (descending)
+curl https://api.paystub.dev/companies?sort=-name
+```
+
+## Multiple Fields
+
+Sort by multiple fields by comma-separating them:
+
+```bash
+# Sort by status, then by creation date
+curl https://api.paystub.dev/documents?sort=status,-created_at
+```
+
+## Available Sort Fields
+
+### Companies
+- `name`
+- `email`
+- `status`
+- `created_at`
+- `updated_at`
+
+### Employees
+- `first_name`
+- `last_name`
+- `company_id`
+- `status`
+- `created_at`
+- `updated_at`
+
+### Documents
+- `type`
+- `status`
+- `created_at`
+- `updated_at`
+
+## Sort Directions
+
+- Ascending: Use the field name as is (`sort=name`)
+- Descending: Prefix with `-` (`sort=-name`)
+
+## Sorting with Relations
+
+Sort based on related model attributes:
+
+```bash
+# Sort employees by company name
+curl https://api.paystub.dev/employees?sort=company.name
+```
+
+## Combining with Other Features
+
+Sorting can be combined with filtering and pagination:
+
+```bash
+# Sort, filter, and paginate
+curl https://api.paystub.dev/documents?\
+sort=-created_at\
+&filter[status]=completed\
+&page=2
+```
+
+## Default Sorting
+
+If no sort parameter is provided, endpoints use these defaults:
+
+- Companies: `-created_at` (newest first)
+- Employees: `company_id,last_name`
+- Documents: `-created_at` (newest first)
+
+## Best Practices
+
+1. Use appropriate indexes for sortable fields
+2. Combine sorting with filtering for better results
+3. Consider performance impact of relation-based sorting
+4. Use default sorting when specific order isn't required
+
+## Error Handling
+
+Invalid sort parameters return a 422 error:
+
+```json
+{
+  "success": false,
+  "message": "Invalid sort parameter",
+  "errors": {
+    "sort": ["The selected sort is invalid."]
+  }
+}
+```

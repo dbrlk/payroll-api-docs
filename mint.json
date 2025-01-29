@@ -57,7 +57,7 @@
         "authentication",
         "companies",
         "employees",
-        "errors"
+        "documents"
       ]
     },
     {
@@ -85,7 +85,8 @@
         "guides/filtering",
         "guides/sorting",
         "guides/includes",
-        "guides/rate-limiting"
+        "guides/rate-limiting",
+        "guides/errors"
       ]
     },
     {

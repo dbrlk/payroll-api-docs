@@ -1,0 +1,123 @@
+---
+title: 'Filtering'
+description: 'Learn how to filter API results using Spatie Query Builder'
+---
+
+The API uses [Spatie Query Builder v6](https://spatie.be/docs/laravel-query-builder/v6) for filtering results. This provides a flexible way to filter collections based on URL parameters.
+
+## Basic Filtering
+
+Use the `filter` query parameter with the field name:
+
+```bash
+# Filter companies by name
+curl https://api.paystub.dev/companies?filter[name]=Acme
+
+# Filter employees by email
+curl https://api.paystub.dev/employees?filter[email]=john@example.com
+```
+
+## Available Filter Types
+
+### Exact Match
+```bash
+# Exact match filtering
+curl https://api.paystub.dev/documents?filter[status]=completed
+```
+
+### Partial Match
+```bash
+# Partial text match (case-insensitive)
+curl https://api.paystub.dev/companies?filter[name]=acme
+```
+
+### Multiple Values
+```bash
+# Filter by multiple status values
+curl https://api.paystub.dev/documents?filter[status]=pending,processing
+```
+
+### Relations
+```bash
+# Filter employees by company name
+curl https://api.paystub.dev/employees?filter[company.name]=Acme
+```
+
+## Filter Operations
+
+The API supports various filter operations:
+
+| Operation | Description | Example |
+|-----------|-------------|---------|
+| `equals` | Exact match | `filter[status]=active` |
+| `contains` | Partial match | `filter[name]=acme` |
+| `gt` | Greater than | `filter[amount.gt]=1000` |
+| `gte` | Greater than or equal | `filter[amount.gte]=1000` |
+| `lt` | Less than | `filter[amount.lt]=1000` |
+| `lte` | Less than or equal | `filter[amount.lte]=1000` |
+
+## Filtering by Date
+
+Use ISO 8601 format for date filtering:
+
+```bash
+# Get documents created after a specific date
+curl https://api.paystub.dev/documents?filter[created_at.gt]=2024-01-01T00:00:00Z
+```
+
+## Combining Filters
+
+Multiple filters can be combined:
+
+```bash
+curl https://api.paystub.dev/employees?\
+filter[company_id]=1\
+&filter[status]=active\
+&filter[created_at.gt]=2024-01-01T00:00:00Z
+```
+
+## Best Practices
+
+1. Use appropriate filter types for better performance
+2. Combine filters to narrow down results
+3. Consider pagination when filtering large datasets
+4. Validate filter values on the client side
+5. Handle empty result sets gracefully
+
+## Filterable Fields
+
+### Companies
+- `name`
+- `email`
+- `status`
+- `created_at`
+
+### Employees
+- `company_id`
+- `first_name`
+- `last_name`
+- `email`
+- `status`
+- `created_at`
+
+### Documents
+- `uuid`
+- `type`
+- `status`
+- `company_id`
+- `employee_id`
+- `created_at`
+
+## Error Handling
+
+Invalid filters will return a 422 error:
+
+```json
+{
+  "success": false,
+  "message": "Invalid filter parameters",
+  "errors": {
+    "filter.status": ["Invalid status value provided"]
+  }
+}
+```
