@@ -3,7 +3,7 @@ title: 'Pagination'
 description: 'Learn how to work with paginated responses in the API'
 ---
 
-The API uses cursor-based pagination to handle large collections of data. This is implemented using Laravel's pagination system and Spatie's Query Builder.
+The API uses pagination to handle large collections of data. This is implemented using Laravel's pagination system and Spatie's Query Builder.
 
 ## Pagination Structure
 
@@ -13,10 +13,44 @@ The API uses cursor-based pagination to handle large collections of data. This i
   "data": [
     // Array of items
   ],
+  "links": {
+    "first": "https://api.paystub.dev/companies?page=1",
+    "last": "https://api.paystub.dev/companies?page=3",
+    "prev": null,
+    "next": "https://api.paystub.dev/companies?page=2"
+  },
   "meta": {
     "current_page": 1,
     "from": 1,
     "last_page": 3,
+    "links": [
+      {
+        "url": null,
+        "label": "&laquo; Previous",
+        "active": false
+      },
+      {
+        "url": "https://api.paystub.dev/companies?page=1",
+        "label": "1",
+        "active": true
+      },
+      {
+        "url": "https://api.paystub.dev/companies?page=2",
+        "label": "2",
+        "active": false
+      },
+      {
+        "url": "https://api.paystub.dev/companies?page=3",
+        "label": "3",
+        "active": false
+      },
+      {
+        "url": "https://api.paystub.dev/companies?page=2",
+        "label": "Next &raquo;",
+        "active": false
+      }
+    ],
+    "path": "https://api.paystub.dev/companies",
     "per_page": 15,
     "to": 15,
     "total": 45
@@ -44,25 +78,58 @@ curl https://api.paystub.dev/companies?per_page=50
 
 ### Navigate Through Pages
 
-Use the metadata to navigate:
-- `current_page`: Current page number
-- `last_page`: Total number of pages
-- `total`: Total number of items
-- `per_page`: Items per page
-- `from`: Starting item number
-- `to`: Ending item number
+The API provides two ways to navigate through pages:
+
+#### Using Meta Information
+- `meta.current_page`: Current page number
+- `meta.last_page`: Total number of pages
+- `meta.total`: Total number of items
+- `meta.per_page`: Items per page
+- `meta.from`: Starting item number
+- `meta.to`: Ending item number
+- `meta.path`: Base URL for the endpoint
+
+#### Using Links
+- `links.first`: URL for the first page
+- `links.last`: URL for the last page
+- `links.prev`: URL for the previous page (null if on first page)
+- `links.next`: URL for the next page (null if on last page)
+
+The `meta.links` array also provides formatted pagination links with labels that can be used to build a UI pagination component.
 
 ## Best Practices
 
-1. Always check `meta.last_page` to know when to stop paginating
-2. Use reasonable `per_page` values to optimize performance
-3. Handle empty pages gracefully
-4. Cache paginated results when appropriate
+1. Use the provided `links` instead of constructing URLs manually
+2. Always check `meta.last_page` to know when to stop paginating
+3. Use reasonable `per_page` values to optimize performance (max: 100)
+4. Handle empty pages gracefully (check `data` array length)
+5. Cache paginated results when appropriate
+6. Consider using the included `meta.links` for building pagination UI
+7. Always append existing query parameters when navigating pages
 
 ## Example Implementation
 
 ```javascript
 async function fetchAllCompanies() {
+  let currentUrl = 'https://api.paystub.dev/companies';
+  const results = [];
+
+  while (currentUrl) {
+    const response = await fetch(currentUrl);
+    const data = await response.json();
+
+    results.push(...data.data);
+    currentUrl = data.links.next;
+  }
+
+  return results;
+}
+```
+
+Alternative implementation using page numbers:
+
+```javascript
+async function fetchAllCompaniesByPage() {
   let currentPage = 1;
   const results = [];
 
@@ -80,9 +147,29 @@ async function fetchAllCompanies() {
 }
 ```
 
+## With Query Parameters
+
+When using pagination with other query parameters (filters, sorting, etc.), the pagination links will automatically include them:
+
+```bash
+# Original request with filters
+curl https://api.paystub.dev/companies?filter[name]=Acme&sort=-created_at
+
+# Response will include links with all query parameters
+{
+  "links": {
+    "first": "https://api.paystub.dev/companies?filter[name]=Acme&sort=-created_at&page=1",
+    "next": "https://api.paystub.dev/companies?filter[name]=Acme&sort=-created_at&page=2"
+    // ...
+  }
+}
+```
+
 ## Notes
 
 - Pagination is mandatory for list endpoints
 - Maximum of 100 items per page
 - Use filtering to reduce the total number of pages
-- Consider using cursor-based pagination for real-time data
+- Links automatically preserve all query parameters
+- Meta information includes everything needed for custom pagination implementations
+- Use `links` navigation when possible instead of constructing URLs manually
